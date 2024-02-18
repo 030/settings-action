@@ -1,0 +1,18 @@
+---
+name: settings
+description: settings
+inputs:
+  project:
+    description: |
+      The name of the GitHub project including the owner, e.g,
+      030/settings-action.
+    required: true
+runs:
+  using: 'composite'
+  steps:
+    - name: display the gh cli version
+      run: gh --version
+      shell: bash
+    - name: disable the 'projects' tab for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-projects=false
+      shell: bash

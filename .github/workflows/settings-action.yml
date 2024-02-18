@@ -1,0 +1,13 @@
+---
+name: settings
+'on': push
+permissions: {}
+jobs:
+  settings-action:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: 030/settings-action@v0.1.0
+        env:
+          GH_TOKEN: ${{ secrets.SETTINGS_ACTION }}
+        with:
+          project: 030/settings-action
