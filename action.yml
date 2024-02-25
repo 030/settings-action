@@ -7,12 +7,23 @@ inputs:
       The name of the GitHub project including the owner, e.g,
       030/settings-action.
     required: true
+  settings_discussions:
+    description: |
+      Whether the discussions tab should be disabled or enabled.
+    required: true
+  settings_projects:
+    description: |
+      Whether the projects tab should be disabled or enabled.
+    required: true
 runs:
   using: 'composite'
   steps:
     - name: display the gh cli version
       run: gh --version
       shell: bash
+    - name: disable the 'discussions' tab for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}
+      shell: bash
     - name: disable the 'projects' tab for ${{ inputs.project }}
-      run: gh repo edit ${{ inputs.project }} --enable-projects=false
+      run: gh repo edit ${{ inputs.project }} --enable-projects=${{ inputs.settings_projects }}
       shell: bash
