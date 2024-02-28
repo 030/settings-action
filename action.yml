@@ -2,6 +2,10 @@
 name: settings
 description: settings
 inputs:
+  description:
+    description: |
+      The description of the GitHub project.
+    required: true
   project:
     description: |
       The name of the GitHub project including the owner, e.g,
@@ -24,6 +28,9 @@ runs:
   steps:
     - name: display the gh cli version
       run: gh --version
+      shell: bash
+    - name: add a description for project ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --description="${{ inputs.description }}"
       shell: bash
     - name: disable the 'discussions' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}

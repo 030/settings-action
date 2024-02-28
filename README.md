@@ -4,12 +4,13 @@ Settings Action that will configure the settings of a GitHub repository.
 
 ## usage
 
-| Option               | Description                               |
-| -------------------- | ----------------------------------------- |
-| project              | The owner/repo                            |
-| settings_discussions | Enable the discussions tab or not         |
-| settings_projects    | Whether the project tab should be enabled |
-| settings_wiki        | Wiki enabled or not                       |
+| Option               | Description                                   |
+| -------------------- | --------------------------------------------- |
+| description          | Change the description of a GitHub repository |
+| project              | The owner/repo                                |
+| settings_discussions | Enable the discussions tab or not             |
+| settings_projects    | Whether the project tab should be enabled     |
+| settings_wiki        | Wiki enabled or not                           |
 
 ```bash
 ---
@@ -27,6 +28,7 @@ jobs:
           GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
         with:
           project: 030/settings-guard
+          description: "Settings Action configures the settings of a GitHub repository."
           settings_discussions: false
           settings_projects: false
           settings_wiki: false
