@@ -2,6 +2,10 @@
 name: settings
 description: settings
 inputs:
+  description:
+    description: |
+      The description of the GitHub project.
+    required: true
   project:
     description: |
       The name of the GitHub project including the owner, e.g,
@@ -11,9 +15,21 @@ inputs:
     description: |
       Whether the discussions tab should be disabled or enabled.
     required: true
+  settings_merge_rebase:
+    description: |
+      Whether the 'merge rebase' option should be disabled or enabled.
+    required: true
+  settings_merge_squash:
+    description: |
+      Whether the 'merge squash' option should be disabled or enabled.
+    required: true
   settings_projects:
     description: |
       Whether the projects tab should be disabled or enabled.
+    required: true
+  settings_wiki:
+    description: |
+      Whether the wiki tab should be disabled or enabled.
     required: true
 runs:
   using: 'composite'
@@ -21,9 +37,24 @@ runs:
     - name: display the gh cli version
       run: gh --version
       shell: bash
+    - name: add a description for project ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --description="${{ inputs.description }}"
+      shell: bash
+    - name: delete branch on merge or not for project ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --delete-branch-on-merge=${{ inputs.settings_delete_branch_on_merge }}
+      shell: bash
     - name: disable the 'discussions' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}
       shell: bash
+    - name: disable the 'merge rebase' tab for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-rebase-merge=${{ inputs.settings_merge_rebase }}
+      shell: bash
+    - name: disable the 'merge squash' tab for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-squash-merge=${{ inputs.settings_merge_squash }}
+      shell: bash
     - name: disable the 'projects' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-projects=${{ inputs.settings_projects }}
+      shell: bash
+    - name: disable the 'wiki' tab for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
       shell: bash
