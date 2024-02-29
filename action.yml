@@ -54,14 +54,17 @@ runs:
     - name: enable or disable the 'discussions' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}
       shell: bash
-    - name: enable or disable 'merge commit' for ${{ inputs.project }}
-      run: gh repo edit ${{ inputs.project }} --enable-merge-commit=${{ inputs.settings_merge_commit }}
-      shell: bash
     - name: enable or disable 'merge rebase' for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-rebase-merge=${{ inputs.settings_merge_rebase }}
       shell: bash
     - name: enable or disable 'merge squash' for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-squash-merge=${{ inputs.settings_merge_squash }}
+      shell: bash
+    # Ensure that at least one of the following settings_merge_x options
+    # is true. As the merge request option is true by default and one of them
+    # has to be true, the merge_commit option is positioned third.
+    - name: enable or disable 'merge commit' for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-merge-commit=${{ inputs.settings_merge_commit }}
       shell: bash
     - name: enable or disable the 'projects' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-projects=${{ inputs.settings_projects }}
