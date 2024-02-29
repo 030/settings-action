@@ -19,6 +19,10 @@ inputs:
     description: |
       Whether a branch should be deleted on merge.
     required: true
+  settings_merge_commit:
+    description: |
+      Whether the 'merge commit' option should be disabled or enabled.
+    required: true
   settings_merge_rebase:
     description: |
       Whether the 'merge rebase' option should be disabled or enabled.
@@ -47,18 +51,21 @@ runs:
     - name: delete branch on merge or not for project ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --delete-branch-on-merge=${{ inputs.settings_delete_branch_on_merge }}
       shell: bash
-    - name: disable the 'discussions' tab for ${{ inputs.project }}
+    - name: enable or disable the 'discussions' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}
       shell: bash
-    - name: disable the 'merge rebase' tab for ${{ inputs.project }}
+    - name: enable or disable 'merge commit' for ${{ inputs.project }}
+      run: gh repo edit ${{ inputs.project }} --enable-merge-commit=${{ inputs.settings_merge_commit }}
+      shell: bash
+    - name: enable or disable 'merge rebase' for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-rebase-merge=${{ inputs.settings_merge_rebase }}
       shell: bash
-    - name: disable the 'merge squash' tab for ${{ inputs.project }}
+    - name: enable or disable 'merge squash' for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-squash-merge=${{ inputs.settings_merge_squash }}
       shell: bash
-    - name: disable the 'projects' tab for ${{ inputs.project }}
+    - name: enable or disable the 'projects' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-projects=${{ inputs.settings_projects }}
       shell: bash
-    - name: disable the 'wiki' tab for ${{ inputs.project }}
+    - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
       shell: bash
