@@ -15,6 +15,10 @@ inputs:
     description: |
       Whether the discussions tab should be disabled or enabled.
     required: true
+  settings_delete_branch_on_merge:
+    description: |
+      Whether a branch should be deleted on merge.
+    required: true
   settings_merge_rebase:
     description: |
       Whether the 'merge rebase' option should be disabled or enabled.
