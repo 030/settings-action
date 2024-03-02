@@ -72,3 +72,38 @@ runs:
     - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
       shell: bash
+
+    - name: Set GitHub Path
+      run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
+      shell: bash
+      env:
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+    - name: protect main branch
+      run: |
+        repositoryId=$(gh repo view --json id -q '.id' "${{ inputs.project }}")
+        echo $repositoryId
+
+        branch_to_be_protected="main"
+        if gh api repos/${{ inputs.project }}/branches/${branch_to_be_protected}/protection; then
+          echo "main branch is protected already. Updating it...";
+
+          # https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection
+          curl \
+            --fail \
+            --verbose \
+            -L \
+            -X PUT \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/${{ inputs.project }}/branches/${branch_to_be_protected}/protection \
+            --data-binary "@${GITHUB_ACTION_PATH}/update-branch-protection-rule.json"
+        else
+          echo "main branch not protected. Protecting it...";
+
+          gh api graphql \
+            -f query="$(cat ${GITHUB_ACTION_PATH}/create-branch-protection-rule.graphql)" \
+            -F branchName="${branch_to_be_protected}" \
+            -F repositoryId="${repositoryId}"
+        fi
+      shell: bash
