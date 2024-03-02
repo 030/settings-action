@@ -1,0 +1,11 @@
+# https://docs.github.com/en/graphql/reference/input-objects#createbranchprotectionruleinput
+mutation CreateBranchProtectionRule($branchName: String!, $repositoryId: ID!) {
+  createBranchProtectionRule(
+    input: { pattern: $branchName, repositoryId: $repositoryId }
+  ) {
+    branchProtectionRule {
+      id
+      databaseId
+    }
+  }
+}
