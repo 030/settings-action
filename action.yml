@@ -31,6 +31,10 @@ inputs:
     description: |
       Whether the 'merge squash' option should be disabled or enabled.
     required: true
+  settings_protect_main_branch:
+    description: |
+      Whether the main branch should be protected or not.
+    required: true
   settings_projects:
     description: |
       Whether the projects tab should be disabled or enabled.
@@ -72,7 +76,6 @@ runs:
     - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
       shell: bash
-
     - name: Set GitHub Path
       run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
       shell: bash
@@ -107,3 +110,4 @@ runs:
             -F repositoryId="${repositoryId}"
         fi
       shell: bash
+      if: ${{ inputs.settings_protect_main_branch == 'true' }}
