@@ -17,17 +17,18 @@ jobs:
   settings-action:
     runs-on: ubuntu-22.04
     steps:
-      - uses: 030/settings-action@v0.2.0
+      - uses: 030/settings-action@v0.5.1
         env:
           GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
         with:
-          project: 030/settings-guard
           description: "Settings Action configures the settings of a GitHub repository."
+          project: 030/settings-guard
           settings_delete_branch_on_merge: true
           settings_discussions: false
           settings_merge_commit: false
           settings_merge_rebase: false
           settings_merge_squash: true
+          settings_protect_main_branch: true
           settings_projects: false
           settings_wiki: false
 ```
@@ -43,6 +44,7 @@ use the following variables:
 | settings_merge_commit           | Enable merge commit                           |
 | settings_merge_rebase           | Enable merge request rebase                   |
 | settings_merge_squash           | Enable merge request squash                   |
+| settings_protect_main_branch    | Protect the main branch or not                |
 | settings_projects               | Whether the project tab should be enabled     |
 | settings_wiki                   | Wiki enabled or not                           |
 
