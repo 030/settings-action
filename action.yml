@@ -2,6 +2,10 @@
 name: settings
 description: settings
 inputs:
+  debug:
+    description: |
+      Enable debug logging.
+    required: true
   description:
     description: |
       The description of the GitHub project.
@@ -34,6 +38,10 @@ inputs:
   settings_protect_main_branch:
     description: |
       Whether the main branch should be protected or not.
+    required: true
+  settings_protect_main_branch_enforce_admins:
+    description: |
+      Whether the main branch protection should be enforced for admin as well.
     required: true
   settings_projects:
     description: |
@@ -86,21 +94,31 @@ runs:
         repositoryId=$(gh repo view --json id -q '.id' "${{ inputs.project }}")
         echo $repositoryId
 
-        branch_to_be_protected="main"
-        if gh api repos/${{ inputs.project }}/branches/${branch_to_be_protected}/protection; then
-          echo "main branch is protected already. Updating it...";
+        if ${{ inputs.debug }}; then
+          echo "enable debug logging"
+          debug="--verbose"
+        fi
+
+        update_branch_protection_rule() {
+          python3 ${GITHUB_ACTION_PATH}/main.py --enforce-admins ${{ inputs.settings_protect_main_branch_enforce_admins }}
 
           # https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection
           curl \
             --fail \
-            --verbose \
+            ${debug} \
             -L \
             -X PUT \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/${{ inputs.project }}/branches/${branch_to_be_protected}/protection \
-            --data-binary "@${GITHUB_ACTION_PATH}/update-branch-protection-rule.json"
+            --data-binary @update-branch-protection-rule.json
+        }
+
+        branch_to_be_protected="main"
+        if gh api repos/${{ inputs.project }}/branches/${branch_to_be_protected}/protection; then
+          echo "main branch is protected already. Updating it...";
+          update_branch_protection_rule
         else
           echo "main branch not protected. Protecting it...";
 
@@ -108,6 +126,8 @@ runs:
             -f query="$(cat ${GITHUB_ACTION_PATH}/create-branch-protection-rule.graphql)" \
             -F branchName="${branch_to_be_protected}" \
             -F repositoryId="${repositoryId}"
+
+          update_branch_protection_rule
         fi
       shell: bash
       if: ${{ inputs.settings_protect_main_branch == 'true' }}
