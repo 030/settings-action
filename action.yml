@@ -15,6 +15,10 @@ inputs:
       The name of the GitHub project including the owner, e.g,
       030/settings-action.
     required: true
+  settings_default_workflow_permissions:
+    description: |
+      Set the default workflow permission to 'read' or 'write'.
+    required: true
   settings_discussions:
     description: |
       Whether the discussions tab should be disabled or enabled.
@@ -22,6 +26,10 @@ inputs:
   settings_delete_branch_on_merge:
     description: |
       Whether a branch should be deleted on merge.
+    required: true
+  settings_github_workflows_can_approve_pull_request_reviews:
+    description: |
+      Whether GitHub workflows can approve pull request reviews.
     required: true
   settings_merge_commit:
     description: |
@@ -63,6 +71,29 @@ runs:
     - name: delete branch on merge or not for project ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --delete-branch-on-merge=${{ inputs.settings_delete_branch_on_merge }}
       shell: bash
+    # https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-default-workflow-permissions-for-a-repository
+    - name: set default_workflow_permissions and can_approve_pull_request_reviews
+      run: |
+        if ${{ inputs.debug }}; then
+          echo "enable debug logging"
+          debug="--verbose"
+        fi
+
+        curl \
+          --fail \
+          --silent \
+          ${debug} \
+          -L \
+          -X PUT \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${GH_TOKEN}" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          https://api.github.com/repos/${{ inputs.project }}/actions/permissions/workflow \
+          -d "{
+            \"default_workflow_permissions\":\"${{ inputs.settings_default_workflow_permissions }}\",
+            \"can_approve_pull_request_reviews\":${{ inputs.settings_github_workflows_can_approve_pull_request_reviews }} 
+          }"
+      shell: bash
     - name: enable or disable the 'discussions' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-discussions=${{ inputs.settings_discussions }}
       shell: bash
@@ -84,11 +115,6 @@ runs:
     - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
       shell: bash
-    - name: Set GitHub Path
-      run: echo "$GITHUB_ACTION_PATH" >> $GITHUB_PATH
-      shell: bash
-      env:
-        GITHUB_ACTION_PATH: ${{ github.action_path }}
     - name: protect main branch
       run: |
         repositoryId=$(gh repo view --json id -q '.id' "${{ inputs.project }}")
@@ -100,11 +126,12 @@ runs:
         fi
 
         update_branch_protection_rule() {
-          python3 ${GITHUB_ACTION_PATH}/main.py --enforce-admins ${{ inputs.settings_protect_main_branch_enforce_admins }}
+          python3 ${{ github.action_path }}/main.py --enforce-admins ${{ inputs.settings_protect_main_branch_enforce_admins }}
 
           # https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection
           curl \
             --fail \
+            --silent \
             ${debug} \
             -L \
             -X PUT \
@@ -123,7 +150,7 @@ runs:
           echo "main branch not protected. Protecting it...";
 
           gh api graphql \
-            -f query="$(cat ${GITHUB_ACTION_PATH}/create-branch-protection-rule.graphql)" \
+            -f query="$(cat ${{ github.action_path }}/create-branch-protection-rule.graphql)" \
             -F branchName="${branch_to_be_protected}" \
             -F repositoryId="${repositoryId}"
 
