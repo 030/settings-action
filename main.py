@@ -8,10 +8,9 @@ import click
 @click.option('--required-approving-review-count', default=1)
 def branch_protection_rules(enforce_admins, required_conversation_resolution, required_approving_review_count):
     required_conversation_resolution = required_conversation_resolution
-    required_pull_request_reviews = {"required_approving_review_count": required_approving_review_count}
+    required_pull_request_reviews = None
     required_status_checks = None
     restrictions = None
-
     data = {
         "enforce_admins": enforce_admins,
         "required_conversation_resolution": required_conversation_resolution,
@@ -19,10 +18,16 @@ def branch_protection_rules(enforce_admins, required_conversation_resolution, re
         "required_status_checks": required_status_checks,
         "restrictions": restrictions
     }
+    if required_approving_review_count > 0:
+        required_pull_request_reviews = {
+            "required_pull_request_reviews": {
+                "required_approving_review_count": required_approving_review_count
+            }
+        }
+        data.update(required_pull_request_reviews)
 
     json_data = json.dumps(data, indent=4)
     print(json_data)
-
     with open('update-branch-protection-rule.json', 'w') as f:
         json.dump(data, f, indent=2)
 
