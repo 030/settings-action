@@ -3,6 +3,7 @@ name: settings
 description: settings
 inputs:
   debug:
+    default: 'false'
     description: |
       Enable debug logging.
     required: true
@@ -16,46 +17,62 @@ inputs:
       030/settings-action.
     required: true
   settings_default_workflow_permissions:
+    default: 'read'
     description: |
       Set the default workflow permission to 'read' or 'write'.
     required: true
   settings_discussions:
+    default: 'false'
     description: |
       Whether the discussions tab should be disabled or enabled.
     required: true
   settings_delete_branch_on_merge:
+    default: 'true'
     description: |
       Whether a branch should be deleted on merge.
     required: true
   settings_github_workflows_can_approve_pull_request_reviews:
+    default: 'false'
     description: |
       Whether GitHub workflows can approve pull request reviews.
     required: true
   settings_merge_commit:
+    default: 'false'
     description: |
       Whether the 'merge commit' option should be disabled or enabled.
     required: true
   settings_merge_rebase:
+    default: 'false'
     description: |
       Whether the 'merge rebase' option should be disabled or enabled.
     required: true
   settings_merge_squash:
+    default: 'true'
     description: |
       Whether the 'merge squash' option should be disabled or enabled.
     required: true
   settings_protect_main_branch:
+    default: 'true'
     description: |
       Whether the main branch should be protected or not.
     required: true
   settings_protect_main_branch_enforce_admins:
+    default: 'true'
     description: |
       Whether the main branch protection should be enforced for admin as well.
     required: true
+  settings_protect_main_branch_required_approving_review_count:
+    default: '1'
+    description: |
+      The number of approvals that is required before a PR can be merged.
+    required: true
   settings_projects:
+    default: 'false'
     description: |
       Whether the projects tab should be disabled or enabled.
     required: true
   settings_wiki:
+    default: 'false'
     description: |
       Whether the wiki tab should be disabled or enabled.
     required: true
@@ -126,7 +143,9 @@ runs:
         fi
 
         update_branch_protection_rule() {
-          python3 ${{ github.action_path }}/main.py --enforce-admins ${{ inputs.settings_protect_main_branch_enforce_admins }}
+          python3 ${{ github.action_path }}/main.py \
+            --enforce-admins ${{ inputs.settings_protect_main_branch_enforce_admins }} \
+            --required-approving-review-count ${{ inputs.settings_protect_main_branch_required_approving_review_count }}
 
           # https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection
           curl \

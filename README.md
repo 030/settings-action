@@ -17,7 +17,7 @@ jobs:
   settings-action:
     runs-on: ubuntu-22.04
     steps:
-      - uses: 030/settings-action@v0.6.0
+      - uses: 030/settings-action@v0.8.0
         env:
           GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
         with:
@@ -33,28 +33,30 @@ jobs:
           settings_merge_squash: true
           settings_protect_main_branch: true
           settings_protect_main_branch_enforce_admins: true
+          settings_protect_main_branch_required_approving_review_count: 1
           settings_projects: false
           settings_wiki: false
 ```
 
 use the following variables:
 
-| Option                                                     | Description                                           |
-| ---------------------------------------------------------- | ----------------------------------------------------- |
-| debug                                                      | Enable debug logging                                  |
-| description                                                | Change the description of a GitHub repository         |
-| project                                                    | The owner/repo                                        |
-| settings_default_workflow_permissions                      | Set the default workflow permissions to read or write |
-| settings_delete_branch_on_merge                            | Delete a branch on merge or not                       |
-| settings_discussions                                       | Enable the discussions tab or not                     |
-| settings_github_workflows_can_approve_pull_request_reviews | Whether workflows can approve pull requests           |
-| settings_merge_commit                                      | Enable merge commit                                   |
-| settings_merge_rebase                                      | Enable merge request rebase                           |
-| settings_merge_squash                                      | Enable merge request squash                           |
-| settings_protect_main_branch                               | Protect the main branch or not                        |
-| settings_protect_main_branch_enforce_admins                | Enforce branch protection for admins                  |
-| settings_projects                                          | Whether the project tab should be enabled             |
-| settings_wiki                                              | Wiki enabled or not                                   |
+| Option                                                       | Description                                                        |
+| ------------------------------------------------------------ | ------------------------------------------------------------------ |
+| debug                                                        | Enable debug logging                                               |
+| description                                                  | Change the description of a GitHub repository                      |
+| project                                                      | The owner/repo                                                     |
+| settings_default_workflow_permissions                        | Set the default workflow permissions to read or write              |
+| settings_delete_branch_on_merge                              | Delete a branch on merge or not                                    |
+| settings_discussions                                         | Enable the discussions tab or not                                  |
+| settings_github_workflows_can_approve_pull_request_reviews   | Whether workflows can approve pull requests                        |
+| settings_merge_commit                                        | Enable merge commit                                                |
+| settings_merge_rebase                                        | Enable merge request rebase                                        |
+| settings_merge_squash                                        | Enable merge request squash                                        |
+| settings_protect_main_branch                                 | Protect the main branch or not                                     |
+| settings_protect_main_branch_enforce_admins                  | Enforce branch protection for admins                               |
+| settings_protect_main_branch_required_approving_review_count | The number of approvals that is required before a PR can be merged |
+| settings_projects                                            | Whether the project tab should be enabled                          |
+| settings_wiki                                                | Wiki enabled or not                                                |
 
 and create a token with read and admin permissions and store it as a
 `SETTINGS_GUARD` variable in the variables menu.
