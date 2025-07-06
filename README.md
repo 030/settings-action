@@ -36,6 +36,7 @@ jobs:
           settings_protect_main_branch_required_approving_review_count: 1
           settings_projects: false
           settings_wiki: false
+          topics: composite-action,github-project-setup,github-settings,settings-as-code
 ```
 
 use the following variables:
@@ -57,6 +58,7 @@ use the following variables:
 | settings_protect_main_branch_required_approving_review_count | The number of approvals that is required before a PR can be merged |
 | settings_projects                                            | Whether the project tab should be enabled                          |
 | settings_wiki                                                | Wiki enabled or not                                                |
+| topics                                                       | The topic(s) that will appear in the about menu of a project       |
 
 and create a token with read and admin permissions and store it as a
 `SETTINGS_GUARD` variable in the variables menu.

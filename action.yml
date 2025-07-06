@@ -76,6 +76,10 @@ inputs:
     description: |
       Whether the wiki tab should be disabled or enabled.
     required: true
+  topics:
+    description: |
+      At least one topic have to be set.
+    required: true
 runs:
   using: 'composite'
   steps:
@@ -131,6 +135,9 @@ runs:
       shell: bash
     - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
       run: gh repo edit ${{ inputs.project }} --enable-wiki=${{ inputs.settings_wiki }}
+      shell: bash
+    - name: set topics
+      run: gh repo edit ${{ inputs.project }} $(echo "${{ inputs.topics }}" | sed 's/,/ --add-topic /g' | awk '{print "--add-topic " $0}')
       shell: bash
     - name: protect main branch
       run: |
