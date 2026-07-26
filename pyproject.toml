@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools", "setuptools-git-versioning"]
+build-backend = "setuptools.build_meta"
+
+[project]
+requires-python = ">=3.9"
+name = "settings-action"
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = ["click"]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+dev = [
+  "coverage==7.10.6",
+  "mypy==1.17.1",
+  "mypy-extensions==1.1.0",
+  "pytest-cov==6.3.0",
+  "types-requests==2.32.4.20250809",
+  "validate-pyproject==0.24.1",
+]
+
+[tool.setuptools-git-versioning]
+enabled = true
+
+[tool.ruff]
+line-length = 80
+
+[tool.pytest.ini_options]
+addopts = [
+  "test.py",
+  "--verbose",
+  "--cov=main",
+  "--capture=no",
+  "--cov-report=term-missing",
+]
