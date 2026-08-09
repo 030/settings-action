@@ -18,7 +18,7 @@ dev = [
   "pytest-cov==7.1.0",
   "types-requests==2.33.0.20260712",
   "validate-pyproject==0.25",
-  "fastjsonschema<2.22",
+  "fastjsonschema<2.23",
 ]
 
 [tool.setuptools-git-versioning]
