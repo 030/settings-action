@@ -1,5 +1,10 @@
 # settings-action
 
+[![GitHub release](https://img.shields.io/github/v/release/030/settings-action)](https://github.com/030/settings-action/releases)
+[![License](https://img.shields.io/github/license/030/settings-action)](LICENSE)
+
+<img src="./assets/logos/settings-action.png" width="250"></a>
+
 Settings Action that will configure the settings of a GitHub repository.
 
 ## Usage
