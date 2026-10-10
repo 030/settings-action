@@ -1,5 +1,14 @@
 import json
+import re
+
 import click
+
+PERMISSIONS = ("pull", "triage", "push", "maintain", "admin")
+# GitHub usernames: letters, digits and single hyphens. Team slugs: lowercase
+# letters, digits, hyphens and underscores. Both end up in an API path, so
+# nothing else is let through.
+USERNAME = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$")
+TEAM_SLUG = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 
 @click.group()
@@ -84,6 +93,55 @@ def actions_permissions(
         print(json.dumps(selected_data, indent=4))
         with open("update-actions-selected-actions.json", "w") as f:
             json.dump(selected_data, f, indent=2)
+
+
+def parse_access(value, name_pattern, option):
+    """Parse 'name:permission,...' into (name, permission) pairs."""
+    entries = []
+    for entry in value.split(","):
+        entry = entry.strip()
+        if not entry:
+            continue
+        name, sep, permission = entry.partition(":")
+        if not sep or not name_pattern.match(name):
+            raise click.BadParameter(
+                f"'{entry}' is not 'name:permission'", param_hint=option
+            )
+        if permission not in PERMISSIONS:
+            raise click.BadParameter(
+                f"'{entry}' has permission '{permission}', expected one of "
+                f"{', '.join(PERMISSIONS)}",
+                param_hint=option,
+            )
+        entries.append((name, permission))
+    return entries
+
+
+@cli.command()
+@click.option(
+    "--collaborators",
+    default="",
+    help="comma-separated list, e.g. alice:push,bob:admin",
+)
+@click.option(
+    "--teams",
+    default="",
+    help="comma-separated list, e.g. maintainers:maintain",
+)
+def access(collaborators, teams):
+    """Validate the access inputs and print one 'kind name permission' line
+    per entry, for action.yml to turn into API calls."""
+    lines = [
+        f"collaborator {name} {permission}"
+        for name, permission in parse_access(
+            collaborators, USERNAME, "'--collaborators'"
+        )
+    ] + [
+        f"team {name} {permission}"
+        for name, permission in parse_access(teams, TEAM_SLUG, "'--teams'")
+    ]
+    for line in lines:
+        click.echo(line)
 
 
 if __name__ == "__main__":

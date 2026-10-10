@@ -164,3 +164,67 @@ def test_actions_permissions_rejects_invalid_allowed_actions(
     )
 
     assert result.exit_code != 0
+
+
+def test_access_prints_collaborators_and_teams():
+    runner = CliRunner()
+
+    result = runner.invoke(
+        cli,
+        [
+            "access",
+            "--collaborators",
+            "alice:push, bob-2:admin,",
+            "--teams",
+            "maintainers:maintain,ci_bots:triage",
+        ],
+    )
+
+    assert result.exit_code == 0
+    assert result.output.splitlines() == [
+        "collaborator alice push",
+        "collaborator bob-2 admin",
+        "team maintainers maintain",
+        "team ci_bots triage",
+    ]
+
+
+def test_access_empty_inputs_print_nothing():
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["access"])
+
+    assert result.exit_code == 0
+    assert result.output == ""
+
+
+def test_access_rejects_unknown_permission():
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["access", "--collaborators", "alice:write"])
+
+    assert result.exit_code != 0
+    assert "permission 'write'" in result.output
+
+
+def test_access_rejects_entry_without_permission():
+    runner = CliRunner()
+
+    result = runner.invoke(cli, ["access", "--teams", "maintainers"])
+
+    assert result.exit_code != 0
+    assert "'maintainers' is not 'name:permission'" in result.output
+
+
+def test_access_rejects_names_that_are_not_a_single_path_segment():
+    runner = CliRunner()
+
+    for option, value in [
+        ("--collaborators", "../alice:push"),
+        ("--collaborators", "al ice:push"),
+        ("--teams", "030/maintainers:maintain"),
+        ("--teams", "Maintainers:maintain"),
+    ]:
+        result = runner.invoke(cli, ["access", option, value])
+
+        assert result.exit_code != 0, value

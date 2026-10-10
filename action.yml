@@ -3,6 +3,14 @@
 name: settings
 description: settings
 inputs:
+  collaborators:
+    default: ""
+    description: |
+      Comma-separated list of 'username:permission' to grant access to the
+      repository, e.g. alice:push,bob:admin. Permission is one of pull,
+      triage, push, maintain or admin. Additive only: access that is not
+      listed is not removed. Empty leaves collaborators unchanged.
+    required: false
   debug:
     default: "false"
     description: |
@@ -108,6 +116,15 @@ inputs:
     description: |
       Whether the wiki tab should be disabled or enabled.
     required: true
+  teams:
+    default: ""
+    description: |
+      Comma-separated list of 'team-slug:permission' to grant teams of the
+      organization that owns the repository access to it, e.g.
+      maintainers:maintain. Permission is one of pull, triage, push,
+      maintain or admin. Additive only: access that is not listed is not
+      removed. Empty leaves team access unchanged.
+    required: false
   topics:
     description: |
       At least one topic have to be set.
@@ -288,6 +305,39 @@ runs:
           args+=(--add-topic "$topic")
         done
         gh repo edit "$PROJECT" "${args[@]}"
+
+    # https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#add-a-repository-collaborator
+    # https://docs.github.com/en/rest/teams/teams?apiVersion=2022-11-28#add-or-update-team-repository-permissions
+    - name: grant collaborators and teams access to ${{ inputs.project }}
+      shell: bash
+      env:
+        PROJECT: ${{ inputs.project }}
+        ACTION_PATH: ${{ github.action_path }}
+        COLLABORATORS: ${{ inputs.collaborators }}
+        TEAMS: ${{ inputs.teams }}
+      run: |
+        # Validate every entry before granting anything, so a typo fails the
+        # step without a partial update.
+        entries=$("$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" access \
+          --collaborators "$COLLABORATORS" \
+          --teams "$TEAMS")
+
+        org="${PROJECT%%/*}"
+        while read -r kind name permission; do
+          case "$kind" in
+            collaborator)
+              echo "grant ${name} '${permission}' on ${PROJECT}"
+              gh api --silent -X PUT "repos/${PROJECT}/collaborators/${name}" \
+                -f permission="$permission"
+              ;;
+            team)
+              echo "grant team ${org}/${name} '${permission}' on ${PROJECT}"
+              gh api --silent -X PUT "orgs/${org}/teams/${name}/repos/${PROJECT}" \
+                -f permission="$permission"
+              ;;
+          esac
+        done <<< "$entries"
+      if: ${{ inputs.collaborators != '' || inputs.teams != '' }}
 
     - name: protect main branch
       shell: bash

@@ -5,6 +5,7 @@ The inputs of the action, as used in the
 
 | Option                                                       | Description                                                                                                                            |
 | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| collaborators                                                | Comma-separated `username:permission` list to grant access, e.g. `alice:push,bob:admin`. See [Access](#access)                         |
 | debug                                                        | Enable debug logging                                                                                                                   |
 | description                                                  | Change the description of a GitHub repository                                                                                          |
 | project                                                      | The owner/repo                                                                                                                         |
@@ -25,4 +26,24 @@ The inputs of the action, as used in the
 | settings_protect_main_branch_required_approving_review_count | The number of approvals that is required before a PR can be merged                                                                     |
 | settings_projects                                            | Whether the project tab should be enabled                                                                                              |
 | settings_wiki                                                | Wiki enabled or not                                                                                                                    |
+| teams                                                        | Comma-separated `team-slug:permission` list of teams in the owner's organization, e.g. `maintainers:maintain`. See [Access](#access)   |
 | topics                                                       | The topic(s) that will appear in the about menu of a project                                                                           |
+
+## Access
+
+`collaborators` and `teams` grant access to the repository. The permission is
+one of `pull`, `triage`, `push`, `maintain` or `admin`; any other value, or an
+entry that is not `name:permission`, fails the step before anything is
+granted. Leave both empty to skip the step.
+
+- A user who is not a collaborator yet gets an invitation.
+- `teams` takes team slugs of the organization that owns the repository, so it
+  does not work for repositories owned by a user.
+- The token needs admin on the repository and, for `teams`, permission to
+  manage the team in the organization (organization owner or team
+  maintainer).
+
+Access is additive only, by design: a collaborator or team that is not listed
+keeps its access. Removing unlisted access would undo every grant made in the
+GitHub UI and could lock people out after a typo, so revoking access stays a
+manual step.
