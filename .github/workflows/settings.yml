@@ -22,7 +22,7 @@ jobs:
           python-version-file: pyproject.toml
       - name: Install the dependencies of main.py
         run: |
-          pip install .
+          pip install --require-hashes -r requirements.txt
       - uses: ./
         env:
           GH_TOKEN: ${{ secrets.SETTINGS_ACTION }}

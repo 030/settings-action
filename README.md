@@ -7,81 +7,52 @@
 
 Settings Action that will configure the settings of a GitHub repository.
 
-## Usage
+## Quickstart
 
-Create a `~/.github/workflows/settings-guard.yml` file:
+1. Create a `~/.github/workflows/settings-guard.yml` file:
 
-```bash
----
-name: settings-guard
-'on':
-  schedule:
-    - cron: '42 6 * * *'
-permissions: {}
-jobs:
-  settings-action:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: 030/settings-action@v0.8.0
-        env:
-          GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
-        with:
-          debug: false
-          description: "Settings Action configures the settings of a GitHub repository."
-          project: 030/settings-guard
-          settings_actions_allowed_actions: "selected"
-          settings_actions_github_owned_allowed: true
-          settings_actions_verified_allowed: false
-          settings_actions_patterns_allowed: "030/*"
-          settings_actions_require_sha_pinning: true
-          settings_default_workflow_permissions: "read"
-          settings_delete_branch_on_merge: true
-          settings_discussions: false
-          settings_github_workflows_can_approve_pull_request_reviews: true
-          settings_merge_commit: false
-          settings_merge_rebase: false
-          settings_merge_squash: true
-          settings_protect_main_branch: true
-          settings_protect_main_branch_enforce_admins: true
-          settings_protect_main_branch_required_approving_review_count: 1
-          settings_projects: false
-          settings_wiki: false
-          topics: composite-action,github-project-setup,github-settings,settings-as-code
-```
+   ```bash
+   ---
+   name: settings-guard
+   'on':
+     schedule:
+       - cron: '42 6 * * *'
+   permissions: {}
+   jobs:
+     settings-action:
+       runs-on: ubuntu-22.04
+       steps:
+         - uses: 030/settings-action@v0.8.0
+           env:
+             GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
+           with:
+             debug: false
+             description: "Settings Action configures the settings of a GitHub repository."
+             project: 030/settings-guard
+             settings_actions_allowed_actions: "selected"
+             settings_actions_github_owned_allowed: true
+             settings_actions_verified_allowed: false
+             settings_actions_patterns_allowed: "030/*"
+             settings_actions_require_sha_pinning: true
+             settings_default_workflow_permissions: "read"
+             settings_delete_branch_on_merge: true
+             settings_discussions: false
+             settings_github_workflows_can_approve_pull_request_reviews: true
+             settings_merge_commit: false
+             settings_merge_rebase: false
+             settings_merge_squash: true
+             settings_protect_main_branch: true
+             settings_protect_main_branch_enforce_admins: true
+             settings_protect_main_branch_required_approving_review_count: 1
+             settings_projects: false
+             settings_wiki: false
+             topics: composite-action,github-project-setup,github-settings,settings-as-code
+   ```
 
-use the following variables:
+1. Create a token with read and admin permissions on the repository.
+1. Store it as a `SETTINGS_GUARD` secret in the repository settings.
 
-| Option                                                       | Description                                                                                                                            |
-| ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| debug                                                        | Enable debug logging                                                                                                                   |
-| description                                                  | Change the description of a GitHub repository                                                                                          |
-| project                                                      | The owner/repo                                                                                                                         |
-| settings_actions_allowed_actions                             | Actions permissions: `all`, `local_only`, or `selected`. Use `selected` to allow OWNER + specific non-OWNER actions/reusable workflows |
-| settings_actions_github_owned_allowed                        | When `settings_actions_allowed_actions` is `selected`, whether GitHub-owned actions (e.g. `actions/checkout`) are allowed              |
-| settings_actions_verified_allowed                            | When `settings_actions_allowed_actions` is `selected`, whether actions from verified creators are allowed                              |
-| settings_actions_patterns_allowed                            | When `settings_actions_allowed_actions` is `selected`, comma-separated list of allowed actions/reusable workflows (e.g. `030/*`)       |
-| settings_actions_require_sha_pinning                         | Require actions to be pinned to a full-length commit SHA                                                                               |
-| settings_default_workflow_permissions                        | Set the default workflow permissions to read or write                                                                                  |
-| settings_delete_branch_on_merge                              | Delete a branch on merge or not                                                                                                        |
-| settings_discussions                                         | Enable the discussions tab or not                                                                                                      |
-| settings_github_workflows_can_approve_pull_request_reviews   | Whether workflows can approve pull requests                                                                                            |
-| settings_merge_commit                                        | Enable merge commit                                                                                                                    |
-| settings_merge_rebase                                        | Enable merge request rebase                                                                                                            |
-| settings_merge_squash                                        | Enable merge request squash                                                                                                            |
-| settings_protect_main_branch                                 | Protect the main branch or not                                                                                                         |
-| settings_protect_main_branch_enforce_admins                  | Enforce branch protection for admins                                                                                                   |
-| settings_protect_main_branch_required_approving_review_count | The number of approvals that is required before a PR can be merged                                                                     |
-| settings_projects                                            | Whether the project tab should be enabled                                                                                              |
-| settings_wiki                                                | Wiki enabled or not                                                                                                                    |
-| topics                                                       | The topic(s) that will appear in the about menu of a project                                                                           |
+## Documentation
 
-and create a token with read and admin permissions and store it as a
-`SETTINGS_GUARD` variable in the variables menu.
-
-## Testing
-
-- [Install](https://github.com/cli/cli?tab=readme-ov-file#installation) gh cli.
-- Create a read only token.
-- Login: `gh auth login` and `choose token` option.
-- Check [these graphql samples](https://gist.github.com/duboisf/68fb6e22ac0a2165ca298074f0e3b553)
-  that can be useful while testing.
+- [Inputs](docs/inputs.md): every option the action accepts.
+- [Testing](docs/testing.md): testing the action locally.
