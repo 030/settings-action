@@ -282,12 +282,13 @@ runs:
         PROJECT: ${{ inputs.project }}
         TOPICS: ${{ inputs.topics }}
       run: |
+        # Replace all topics, so topics that are not in the input are removed.
         args=()
         IFS=',' read -ra topics <<< "$TOPICS"
         for topic in "${topics[@]}"; do
-          args+=(--add-topic "$topic")
+          args+=(-f "names[]=$topic")
         done
-        gh repo edit "$PROJECT" "${args[@]}"
+        gh api -X PUT "repos/$PROJECT/topics" "${args[@]}" --silent
 
     - name: protect main branch
       shell: bash

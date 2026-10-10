@@ -25,4 +25,4 @@ The inputs of the action, as used in the
 | settings_protect_main_branch_required_approving_review_count | The number of approvals that is required before a PR can be merged                                                                     |
 | settings_projects                                            | Whether the project tab should be enabled                                                                                              |
 | settings_wiki                                                | Wiki enabled or not                                                                                                                    |
-| topics                                                       | The topic(s) that will appear in the about menu of a project                                                                           |
+| topics                                                       | Comma-separated topics of a project. Replaces all topics: topics that are not listed are removed                                       |
