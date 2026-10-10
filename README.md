@@ -11,7 +11,7 @@ Settings Action that will configure the settings of a GitHub repository.
 
 1. Create a `~/.github/workflows/settings-guard.yml` file:
 
-   ```bash
+   ```yaml
    ---
    name: settings-guard
    'on':
