@@ -119,6 +119,17 @@ runs:
       run: gh --version
       shell: bash
 
+    - name: install the dependencies of main.py
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        # A private venv, so the caller does not have to install click and
+        # the Python on the caller's PATH is left alone.
+        python3 -m venv "$RUNNER_TEMP/settings-action-venv"
+        "$RUNNER_TEMP/settings-action-venv/bin/pip" install --disable-pip-version-check \
+          --require-hashes \
+          -r "$ACTION_PATH/requirements.txt"
     - name: add a description for project ${{ inputs.project }}
       shell: bash
       env:
@@ -184,7 +195,7 @@ runs:
           debug="--verbose"
         fi
 
-        python3 "$ACTION_PATH/main.py" actions-permissions \
+        "$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" actions-permissions \
           --allowed-actions "$ALLOWED_ACTIONS" \
           --github-owned-allowed "$GITHUB_OWNED_ALLOWED" \
           --verified-allowed "$VERIFIED_ALLOWED" \
@@ -297,7 +308,7 @@ runs:
         fi
 
         update_branch_protection_rule() {
-          python3 "$ACTION_PATH/main.py" branch-protection-rules \
+          "$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" branch-protection-rules \
             --enforce-admins "$ENFORCE_ADMINS" \
             --required-approving-review-count "$REQUIRED_APPROVING_REVIEW_COUNT"
 
