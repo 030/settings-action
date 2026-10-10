@@ -68,6 +68,16 @@ inputs:
     description: |
       Whether GitHub workflows can approve pull request reviews.
     required: true
+  settings_homepage:
+    default: ""
+    description: |
+      The website URL of the GitHub project. Empty leaves it unchanged.
+    required: false
+  settings_issues:
+    default: "true"
+    description: |
+      Whether the issues tab should be disabled or enabled.
+    required: true
   settings_merge_commit:
     default: "false"
     description: |
@@ -130,21 +140,43 @@ runs:
         "$RUNNER_TEMP/settings-action-venv/bin/pip" install --disable-pip-version-check \
           --require-hashes \
           -r "$ACTION_PATH/requirements.txt"
-    - name: add a description for project ${{ inputs.project }}
+    - name: edit the settings of project ${{ inputs.project }}
       shell: bash
       env:
         PROJECT: ${{ inputs.project }}
         DESCRIPTION: ${{ inputs.description }}
-      run: |
-        gh repo edit "$PROJECT" --description="$DESCRIPTION"
-
-    - name: delete branch on merge or not for project ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
+        HOMEPAGE: ${{ inputs.settings_homepage }}
         DELETE_BRANCH_ON_MERGE: ${{ inputs.settings_delete_branch_on_merge }}
+        DISCUSSIONS: ${{ inputs.settings_discussions }}
+        ISSUES: ${{ inputs.settings_issues }}
+        MERGE_COMMIT: ${{ inputs.settings_merge_commit }}
+        MERGE_REBASE: ${{ inputs.settings_merge_rebase }}
+        MERGE_SQUASH: ${{ inputs.settings_merge_squash }}
+        PROJECTS: ${{ inputs.settings_projects }}
+        WIKI: ${{ inputs.settings_wiki }}
       run: |
-        gh repo edit "$PROJECT" --delete-branch-on-merge="$DELETE_BRANCH_ON_MERGE"
+        if [ "$MERGE_COMMIT" != "true" ] && [ "$MERGE_REBASE" != "true" ] && [ "$MERGE_SQUASH" != "true" ]; then
+          echo "::error::at least one of settings_merge_commit, settings_merge_rebase and settings_merge_squash must be true"
+          exit 1
+        fi
+
+        # One call, so GitHub validates the merge methods together and never
+        # sees an intermediate state with none of them enabled.
+        args=(
+          --description="$DESCRIPTION"
+          --delete-branch-on-merge="$DELETE_BRANCH_ON_MERGE"
+          --enable-discussions="$DISCUSSIONS"
+          --enable-issues="$ISSUES"
+          --enable-merge-commit="$MERGE_COMMIT"
+          --enable-rebase-merge="$MERGE_REBASE"
+          --enable-squash-merge="$MERGE_SQUASH"
+          --enable-projects="$PROJECTS"
+          --enable-wiki="$WIKI"
+        )
+        if [ -n "$HOMEPAGE" ]; then
+          args+=(--homepage="$HOMEPAGE")
+        fi
+        gh repo edit "$PROJECT" "${args[@]}"
 
     # https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-default-workflow-permissions-for-a-repository
     - name: set default_workflow_permissions and can_approve_pull_request_reviews
@@ -227,54 +259,6 @@ runs:
             "https://api.github.com/repos/${PROJECT}/actions/permissions/selected-actions" \
             --data-binary @update-actions-selected-actions.json
         fi
-
-    - name: enable or disable the 'discussions' tab for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        DISCUSSIONS: ${{ inputs.settings_discussions }}
-      run: |
-        gh repo edit "$PROJECT" --enable-discussions="$DISCUSSIONS"
-
-    - name: enable or disable 'merge rebase' for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        MERGE_REBASE: ${{ inputs.settings_merge_rebase }}
-      run: |
-        gh repo edit "$PROJECT" --enable-rebase-merge="$MERGE_REBASE"
-
-    - name: enable or disable 'merge squash' for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        MERGE_SQUASH: ${{ inputs.settings_merge_squash }}
-      run: |
-        gh repo edit "$PROJECT" --enable-squash-merge="$MERGE_SQUASH"
-
-    - name: enable or disable 'merge commit' for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        MERGE_COMMIT: ${{ inputs.settings_merge_commit }}
-      run: |
-        gh repo edit "$PROJECT" --enable-merge-commit="$MERGE_COMMIT"
-
-    - name: enable or disable the 'projects' tab for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        PROJECTS: ${{ inputs.settings_projects }}
-      run: |
-        gh repo edit "$PROJECT" --enable-projects="$PROJECTS"
-
-    - name: enable or disable the 'wiki' tab for ${{ inputs.project }}
-      shell: bash
-      env:
-        PROJECT: ${{ inputs.project }}
-        WIKI: ${{ inputs.settings_wiki }}
-      run: |
-        gh repo edit "$PROJECT" --enable-wiki="$WIKI"
 
     - name: set topics
       shell: bash

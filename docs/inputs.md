@@ -17,6 +17,8 @@ The inputs of the action, as used in the
 | settings_delete_branch_on_merge                              | Delete a branch on merge or not                                                                                                        |
 | settings_discussions                                         | Enable the discussions tab or not                                                                                                      |
 | settings_github_workflows_can_approve_pull_request_reviews   | Whether workflows can approve pull requests                                                                                            |
+| settings_homepage                                            | The website URL of a GitHub repository. Empty (the default) leaves it unchanged                                                        |
+| settings_issues                                              | Enable the issues tab or not (default `true`)                                                                                          |
 | settings_merge_commit                                        | Enable merge commit                                                                                                                    |
 | settings_merge_rebase                                        | Enable merge request rebase                                                                                                            |
 | settings_merge_squash                                        | Enable merge request squash                                                                                                            |
@@ -26,3 +28,6 @@ The inputs of the action, as used in the
 | settings_projects                                            | Whether the project tab should be enabled                                                                                              |
 | settings_wiki                                                | Wiki enabled or not                                                                                                                    |
 | topics                                                       | The topic(s) that will appear in the about menu of a project                                                                           |
+
+At least one of `settings_merge_commit`, `settings_merge_rebase` and
+`settings_merge_squash` must be `true`, otherwise the action fails.
