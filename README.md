@@ -22,7 +22,7 @@ Settings Action that will configure the settings of a GitHub repository.
      settings-action:
        runs-on: ubuntu-22.04
        steps:
-         - uses: 030/settings-action@v0.8.0
+         - uses: 030/settings-action@a27696394dd22683f19303883d8ef275b7287e83 # v0.10.1
            env:
              GH_TOKEN: ${{ secrets.SETTINGS_GUARD }}
            with:
