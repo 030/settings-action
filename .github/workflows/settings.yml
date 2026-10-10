@@ -5,7 +5,7 @@ name: settings
     branches:
       - main
   schedule:
-    - cron: "42 6 * * *"
+    - cron: 42 6 * * *
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,14 +27,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SETTINGS_ACTION }}
         with:
-          description: "Settings Action configures the settings of a GitHub repository."
+          description: Settings Action configures the settings of a GitHub repository.
           project: ${{ github.repository }}
           settings_actions_allowed_actions: selected
           settings_actions_github_owned_allowed: true
           settings_actions_verified_allowed: false
           # mcvs-general-action v0.7.x runs lychee-action and
           # markdownlint-cli2-action as nested actions.
-          settings_actions_patterns_allowed: "030/*,schubergphilis/*,zizmorcore/zizmor-action@*,lycheeverse/lychee-action@*,davidanson/markdownlint-cli2-action@*"
+          settings_actions_patterns_allowed: 030/*,schubergphilis/*,zizmorcore/zizmor-action@*,lycheeverse/lychee-action@*,davidanson/markdownlint-cli2-action@*
           settings_actions_require_sha_pinning: true
           settings_default_workflow_permissions: read
           settings_delete_branch_on_merge: true
