@@ -155,26 +155,14 @@ runs:
         DEFAULT_WORKFLOW_PERMISSIONS: ${{ inputs.settings_default_workflow_permissions }}
         CAN_APPROVE_PULL_REQUEST_REVIEWS: ${{ inputs.settings_github_workflows_can_approve_pull_request_reviews }}
       run: |
-        debug=""
         if [ "$DEBUG" = "true" ]; then
           echo "enable debug logging"
-          debug="--verbose"
+          export GH_DEBUG=api
         fi
 
-        curl \
-          --fail \
-          --silent \
-          ${debug} \
-          -L \
-          -X PUT \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "https://api.github.com/repos/${PROJECT}/actions/permissions/workflow" \
-          -d "{
-            \"default_workflow_permissions\":\"${DEFAULT_WORKFLOW_PERMISSIONS}\",
-            \"can_approve_pull_request_reviews\":${CAN_APPROVE_PULL_REQUEST_REVIEWS}
-          }"
+        gh api -X PUT "repos/${PROJECT}/actions/permissions/workflow" \
+          -f default_workflow_permissions="$DEFAULT_WORKFLOW_PERMISSIONS" \
+          -F can_approve_pull_request_reviews="$CAN_APPROVE_PULL_REQUEST_REVIEWS"
 
     # https://docs.github.com/en/rest/actions/permissions?apiVersion=2022-11-28#set-github-actions-permissions-for-a-repository
     - name: set actions permissions for project ${{ inputs.project }}
@@ -189,10 +177,9 @@ runs:
         PATTERNS_ALLOWED: ${{ inputs.settings_actions_patterns_allowed }}
         REQUIRE_SHA_PINNING: ${{ inputs.settings_actions_require_sha_pinning }}
       run: |
-        debug=""
         if [ "$DEBUG" = "true" ]; then
           echo "enable debug logging"
-          debug="--verbose"
+          export GH_DEBUG=api
         fi
 
         "$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" actions-permissions \
@@ -202,30 +189,12 @@ runs:
           --patterns-allowed "$PATTERNS_ALLOWED" \
           --require-sha-pinning "$REQUIRE_SHA_PINNING"
 
-        curl \
-          --fail \
-          --silent \
-          ${debug} \
-          -L \
-          -X PUT \
-          -H "Accept: application/vnd.github+json" \
-          -H "Authorization: Bearer ${GH_TOKEN}" \
-          -H "X-GitHub-Api-Version: 2022-11-28" \
-          "https://api.github.com/repos/${PROJECT}/actions/permissions" \
-          --data-binary @update-actions-permissions.json
+        gh api -X PUT "repos/${PROJECT}/actions/permissions" \
+          --input update-actions-permissions.json
 
         if [ "$ALLOWED_ACTIONS" = "selected" ]; then
-          curl \
-            --fail \
-            --silent \
-            ${debug} \
-            -L \
-            -X PUT \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${PROJECT}/actions/permissions/selected-actions" \
-            --data-binary @update-actions-selected-actions.json
+          gh api -X PUT "repos/${PROJECT}/actions/permissions/selected-actions" \
+            --input update-actions-selected-actions.json
         fi
 
     - name: enable or disable the 'discussions' tab for ${{ inputs.project }}
@@ -298,46 +267,17 @@ runs:
         ENFORCE_ADMINS: ${{ inputs.settings_protect_main_branch_enforce_admins }}
         REQUIRED_APPROVING_REVIEW_COUNT: ${{ inputs.settings_protect_main_branch_required_approving_review_count }}
       run: |
-        repositoryId=$(gh repo view --json id -q '.id' "$PROJECT")
-        echo "$repositoryId"
-
-        debug=""
         if [ "$DEBUG" = "true" ]; then
           echo "enable debug logging"
-          debug="--verbose"
+          export GH_DEBUG=api
         fi
 
-        update_branch_protection_rule() {
-          "$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" branch-protection-rules \
-            --enforce-admins "$ENFORCE_ADMINS" \
-            --required-approving-review-count "$REQUIRED_APPROVING_REVIEW_COUNT"
+        "$RUNNER_TEMP/settings-action-venv/bin/python" "$ACTION_PATH/main.py" branch-protection-rules \
+          --enforce-admins "$ENFORCE_ADMINS" \
+          --required-approving-review-count "$REQUIRED_APPROVING_REVIEW_COUNT"
 
-          curl \
-            --fail \
-            --silent \
-            ${debug} \
-            -L \
-            -X PUT \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${GH_TOKEN}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/${PROJECT}/branches/${branch_to_be_protected}/protection" \
-            --data-binary @update-branch-protection-rule.json
-        }
-
-        branch_to_be_protected="main"
-
-        if gh api "repos/${PROJECT}/branches/${branch_to_be_protected}/protection"; then
-          echo "main branch is protected already. Updating it..."
-          update_branch_protection_rule
-        else
-          echo "main branch not protected. Protecting it..."
-
-          gh api graphql \
-            -f query="$(cat "$ACTION_PATH/create-branch-protection-rule.graphql")" \
-            -F branchName="${branch_to_be_protected}" \
-            -F repositoryId="${repositoryId}"
-
-          update_branch_protection_rule
-        fi
+        # https://docs.github.com/en/rest/branches/branch-protection?apiVersion=2022-11-28#update-branch-protection
+        # PUT creates the protection if the branch has none yet.
+        gh api -X PUT "repos/${PROJECT}/branches/main/protection" \
+          --input update-branch-protection-rule.json
       if: ${{ inputs.settings_protect_main_branch == 'true' }}
