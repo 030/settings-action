@@ -29,7 +29,7 @@ jobs:
           settings_actions_allowed_actions: selected
           settings_actions_github_owned_allowed: true
           settings_actions_verified_allowed: false
-          # mcvs-general-action v0.9.x runs lychee-action and
+          # mcvs-general-action v0.11.x runs lychee-action and
           # markdownlint-cli2-action as nested actions.
           settings_actions_patterns_allowed: 030/*,schubergphilis/*,zizmorcore/zizmor-action@*,lycheeverse/lychee-action@*,davidanson/markdownlint-cli2-action@*
           settings_actions_require_sha_pinning: true
