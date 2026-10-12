@@ -11,6 +11,9 @@ permissions:
   contents: read
 jobs:
   settings-action:
+    # Only 030/settings-action applies its own settings, never a fork. Not
+    # github.event.repository.fork: a schedule event has no repository.
+    if: github.repository == '030/settings-action'
     runs-on: ubuntu-24.04
     steps:
       # yamllint disable rule:line-length
