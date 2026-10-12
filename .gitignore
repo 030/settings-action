@@ -1,2 +1,4 @@
 .vscode
 update-branch-protection-rule.json
+update-actions-permissions.json
+update-actions-selected-actions.json

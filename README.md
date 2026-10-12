@@ -9,7 +9,7 @@ Settings Action that will configure the settings of a GitHub repository.
 
 ## Quickstart
 
-1. Create a `~/.github/workflows/settings-guard.yml` file:
+1. Create a `.github/workflows/settings-guard.yml` file:
 
    ```yaml
    ---
@@ -17,6 +17,7 @@ Settings Action that will configure the settings of a GitHub repository.
    'on':
      schedule:
        - cron: '42 6 * * *'
+     workflow_dispatch:
    permissions: {}
    jobs:
      settings-action:

@@ -16,7 +16,6 @@ dev = [
   "mypy==2.4.0",
   "mypy-extensions==1.1.0",
   "pytest-cov==7.1.0",
-  "types-requests==2.33.0.20260906",
   "validate-pyproject==0.26",
   "fastjsonschema<2.23",
 ]
