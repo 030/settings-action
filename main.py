@@ -16,24 +16,17 @@ def branch_protection_rules(
     required_conversation_resolution,
     required_approving_review_count,
 ):
-    required_conversation_resolution = required_conversation_resolution
-    required_pull_request_reviews = None
-    required_status_checks = None
-    restrictions = None
     data = {
         "enforce_admins": enforce_admins,
         "required_conversation_resolution": required_conversation_resolution,
-        "required_pull_request_reviews": required_pull_request_reviews,
-        "required_status_checks": required_status_checks,
-        "restrictions": restrictions,
+        "required_pull_request_reviews": None,
+        "required_status_checks": None,
+        "restrictions": None,
     }
     if required_approving_review_count > 0:
-        required_pull_request_reviews = {
-            "required_pull_request_reviews": {
-                "required_approving_review_count": required_approving_review_count
-            }
+        data["required_pull_request_reviews"] = {
+            "required_approving_review_count": required_approving_review_count
         }
-        data.update(required_pull_request_reviews)
 
     json_data = json.dumps(data, indent=4)
     print(json_data)
