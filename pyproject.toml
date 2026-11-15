@@ -7,16 +7,16 @@ requires-python = ">=3.11"
 name = "settings-action"
 readme = "README.md"
 license = { file = "LICENSE" }
-dependencies = ["click==8.5.0"]
+dependencies = ["click==8.5.1"]
 dynamic = ["version"]
 
 [project.optional-dependencies]
 dev = [
-  "coverage==7.16.2",
-  "mypy==2.4.0",
-  "mypy-extensions==1.1.0",
+  "coverage==7.17.2",
+  "mypy==2.4.1",
+  "mypy-extensions==1.2.0",
   "pytest-cov==7.1.0",
-  "validate-pyproject==0.26",
+  "validate-pyproject==0.27",
   "fastjsonschema<2.23",
 ]
 
